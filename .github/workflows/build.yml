@@ -27,6 +27,10 @@ jobs:
             --description "Prometheus exporter for hdparm disk metrics" \
             --rpm-os linux \
             --rpm-dist el8 \
+            --depends python3 \
+            --depends python3-pip \
+            --depends hdparm \
+            --depends python3-prometheus_client \
             --after-install debian/postinst \
             hdparm_exporter.py=/opt/hdparm_prometheus_exporter/hdparm_exporter.py \
             hdparm_exporter.service=/usr/lib/systemd/system/hdparm_exporter.service
