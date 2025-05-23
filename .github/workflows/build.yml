@@ -1,0 +1,35 @@
+name: Build and Publish .deb
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3 python3-pip fpm
+
+    - name: Build .deb package
+      run: |
+        pip3 install prometheus_client
+        fpm -s dir -t deb -n hdparm-prometheus-exporter \
+            --version 1.0.0 --iteration 1 \
+            --description "Prometheus exporter for hdparm disk metrics" \
+            --deb-systemd hdparm_exporter.service \
+            --post-install debian/postinst \
+            hdparm_exporter.py=/opt/hdparm_prometheus_exporter/hdparm_exporter.py
+
+    - name: Upload .deb artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hdparm-prometheus-exporter
+        path: *.deb

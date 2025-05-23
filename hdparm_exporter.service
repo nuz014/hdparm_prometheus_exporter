@@ -1,0 +1,11 @@
+[Unit]
+Description=Prometheus Exporter for hdparm Disk Metrics
+After=network.target
+
+[Service]
+User=hdparm_exporter
+ExecStart=/usr/bin/python3 /opt/hdparm_prometheus_exporter/hdparm_exporter.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

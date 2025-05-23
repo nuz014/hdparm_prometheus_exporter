@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+
+# Create user if it doesn't exist
+if ! id -u hdparm_exporter >/dev/null 2>&1; then
+    useradd --system --no-create-home --shell /usr/sbin/nologin hdparm_exporter
+fi
+
+# Reload systemd and enable the service
+systemctl daemon-reload
+systemctl enable hdparm_exporter.service
+systemctl start hdparm_exporter.service
+
+if [ "$1" = "remove" ]; then
+    # Stop and disable the service
+    systemctl stop hdparm_exporter.service || true
+    systemctl disable hdparm_exporter.service || true
+
+    # Remove the user
+    if id -u hdparm_exporter >/dev/null 2>&1; then
+        userdel hdparm_exporter
+    fi
+
+    # Remove leftover files
+    rm -rf /opt/hdparm_prometheus_exporter
+    systemctl daemon-reload
+fi
