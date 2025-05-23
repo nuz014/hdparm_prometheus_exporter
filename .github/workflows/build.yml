@@ -1,4 +1,4 @@
-name: Build and Publish .deb
+name: Build and Publish .rpm
 
 on:
   push:
@@ -16,20 +16,22 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3 python3-pip fpm
+        sudo apt-get install -y python3 python3-pip ruby ruby-dev rpm
+        sudo gem install --no-document fpm
 
-    - name: Build .deb package
+    - name: Build .rpm package
       run: |
         pip3 install prometheus_client
-        fpm -s dir -t deb -n hdparm-prometheus-exporter \
+        fpm -s dir -t rpm -n hdparm-prometheus-exporter \
             --version 1.0.0 --iteration 1 \
             --description "Prometheus exporter for hdparm disk metrics" \
-            --deb-systemd hdparm_exporter.service \
-            --post-install debian/postinst \
+            --rpm-os linux \
+            --rpm-dist el8 \
+            --after-install debian/postinst \
             hdparm_exporter.py=/opt/hdparm_prometheus_exporter/hdparm_exporter.py
 
-    - name: Upload .deb artifact
-      uses: actions/upload-artifact@v3
+    - name: Upload .rpm artifact
+      uses: actions/upload-artifact@v4
       with:
         name: hdparm-prometheus-exporter
-        path: "*.deb"
+        path: "*.rpm"
