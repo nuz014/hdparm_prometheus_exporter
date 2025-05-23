@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+if [ "$1" = "remove" ]; then
+    # Stop and disable the service
+    systemctl stop hdparm_exporter.service || true
+    systemctl disable hdparm_exporter.service || true
+
+    # Remove the user
+    if id -u hdparm_exporter >/dev/null 2>&1; then
+        userdel hdparm_exporter
+    fi
+
+    # Remove leftover files
+    rm -rf /opt/hdparm_prometheus_exporter
+
+    # Remove the systemd service file
+    rm -f /usr/lib/systemd/system/hdparm_exporter.service
+
+    systemctl daemon-reload
+fi

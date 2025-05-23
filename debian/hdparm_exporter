@@ -1,0 +1,1 @@
+hdparm_exporter ALL=(root) NOPASSWD: /sbin/hdparm

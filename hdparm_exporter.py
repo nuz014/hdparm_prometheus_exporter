@@ -3,9 +3,23 @@ import subprocess
 import time
 from prometheus_client import start_http_server, Gauge
 
+CONFIG_PATH = "/etc/prometheus_hdparm_exporter/hdparm_exporter.conf"
+
 # Prometheus metrics
 disk_read_speed = Gauge('disk_read_speed', 'Disk read speed in MB/s', ['disk'])
 disk_cache_speed = Gauge('disk_cache_speed', 'Disk cache speed in MB/s', ['disk'])
+
+def get_exporter_port():
+    port = 9100  # default
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH) as f:
+            for line in f:
+                if line.strip().startswith("PORT="):
+                    try:
+                        port = int(line.strip().split("=", 1)[1])
+                    except Exception:
+                        pass
+    return port
 
 def get_disks():
     """Find all disks on the system."""
@@ -34,7 +48,8 @@ def collect_metrics():
             disk_read_speed.labels(disk=disk).set(read_speed)
 
 if __name__ == "__main__":
-    start_http_server(9100)  # Expose metrics on port 9100
+    port = get_exporter_port()
+    start_http_server(port)  # Expose metrics on configured port
     while True:
         collect_metrics()
         time.sleep(300)  # Run every 5 minutes
