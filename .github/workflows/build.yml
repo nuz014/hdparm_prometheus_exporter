@@ -41,13 +41,11 @@ jobs:
     - name: Generate .repo file
       run: |
         REPO_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
-        cat > hdparm-prometheus-exporter.repo <<EOF
-[hdparm-prometheus-exporter]
-name=hdparm-prometheus-exporter
-baseurl=${REPO_URL}
-enabled=1
-gpgcheck=0
-EOF
+        echo "[hdparm-prometheus-exporter]" > hdparm-prometheus-exporter.repo
+        echo "name=hdparm-prometheus-exporter" >> hdparm-prometheus-exporter.repo
+        echo "baseurl=${REPO_URL}" >> hdparm-prometheus-exporter.repo
+        echo "enabled=1" >> hdparm-prometheus-exporter.repo
+        echo "gpgcheck=0" >> hdparm-prometheus-exporter.repo
 
     - name: Create Release and Upload .rpm and .repo
       uses: softprops/action-gh-release@v2
