@@ -57,7 +57,6 @@ def collect_metrics():
     for disk in disks:
         cache_speed, read_speed = measure_disk_speed(disk)
         if cache_speed is not None and read_speed is not None:
-            # Use the new metric names
             disk_cached_read_speed.labels(disk=disk, hostname=hostname).set(cache_speed)
             disk_buffered_read_speed.labels(disk=disk, hostname=hostname).set(read_speed)
 
