@@ -1,8 +1,8 @@
 import os
 import subprocess
 import time
-from prometheus_client import start_http_server, Gauge
 import socket
+from prometheus_client import start_http_server, Gauge
 
 CONFIG_PATH = "/etc/prometheus_hdparm_exporter/hdparm_exporter.conf"
 
