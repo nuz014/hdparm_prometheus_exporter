@@ -2,13 +2,14 @@ import os
 import subprocess
 import time
 from prometheus_client import start_http_server, Gauge
+import socket
 
 CONFIG_PATH = "/etc/prometheus_hdparm_exporter/hdparm_exporter.conf"
 
 # Prometheus metrics
 # Changed metric names to match hdparm output
-disk_buffered_read_speed = Gauge('disk_buffered_read_speed', 'Disk buffered read speed in MB/s', ['disk'])
-disk_cached_read_speed = Gauge('disk_cached_read_speed', 'Disk cached read speed in MB/s', ['disk'])
+disk_buffered_read_speed = Gauge('disk_buffered_read_speed', 'Disk buffered read speed in MB/s', ['disk', 'hostname'])
+disk_cached_read_speed = Gauge('disk_cached_read_speed', 'Disk cached read speed in MB/s', ['disk', 'hostname'])
 
 def get_exporter_config():
     """Read exporter configuration from file."""
@@ -51,13 +52,14 @@ def measure_disk_speed(disk):
 
 def collect_metrics():
     """Collect metrics for all disks."""
+    hostname = socket.gethostname()  # Get the VM hostname
     disks = get_disks()
     for disk in disks:
         cache_speed, read_speed = measure_disk_speed(disk)
         if cache_speed is not None and read_speed is not None:
             # Use the new metric names
-            disk_cached_read_speed.labels(disk=disk).set(cache_speed)
-            disk_buffered_read_speed.labels(disk=disk).set(read_speed)
+            disk_cached_read_speed.labels(disk=disk, hostname=hostname).set(cache_speed)
+            disk_buffered_read_speed.labels(disk=disk, hostname=hostname).set(read_speed)
 
 if __name__ == "__main__":
     listen_ip, port = get_exporter_config()
