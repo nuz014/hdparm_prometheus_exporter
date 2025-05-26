@@ -26,7 +26,7 @@ Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port o
 
 ```
 # Port for Prometheus exporter to listen on
-PORT=9100
+PORT=9101
 
 # IP address for Prometheus exporter to listen on (0.0.0.0 for all interfaces)
 LISTEN_IP=0.0.0.0
