@@ -29,8 +29,8 @@ def get_disks():
 def measure_disk_speed(disk):
     """Run hdparm -Tt on a disk and parse the output."""
     try:
-        # Call hdparm directly, without sudo (sudoers already allows this user to run hdparm as root)
-        result = subprocess.run(['/sbin/hdparm', '-Tt', disk], stdout=subprocess.PIPE, text=True, check=True)
+        # Use sudo to call hdparm as root (sudoers file must allow this command without password)
+        result = subprocess.run(['sudo', '/sbin/hdparm', '-Tt', disk], stdout=subprocess.PIPE, text=True, check=True)
         output = result.stdout
         cache_speed = float(output.splitlines()[-2].split()[-2])  # MB/s
         read_speed = float(output.splitlines()[-1].split()[-2])  # MB/s
