@@ -22,13 +22,17 @@ Install the RPM or DEB package on your system. The installer will:
 
 ## Configuration
 
-Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port (default is 9101):
+Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port or listen IP:
 
 ```
-PORT=9101
+# Port for Prometheus exporter to listen on
+PORT=9100
+
+# IP address for Prometheus exporter to listen on (0.0.0.0 for all interfaces)
+LISTEN_IP=0.0.0.0
 ```
 
-Restart the service after changing the port:
+Restart the service after changing the configuration:
 
 ```
 sudo systemctl restart hdparm_exporter

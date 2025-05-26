@@ -10,17 +10,23 @@ CONFIG_PATH = "/etc/prometheus_hdparm_exporter/hdparm_exporter.conf"
 disk_buffered_read_speed = Gauge('disk_buffered_read_speed', 'Disk buffered read speed in MB/s', ['disk'])
 disk_cached_read_speed = Gauge('disk_cached_read_speed', 'Disk cached read speed in MB/s', ['disk'])
 
-def get_exporter_port():
-    port = 9100  # default
+def get_exporter_config():
+    """Read exporter configuration from file."""
+    port = 9100  # default port
+    listen_ip = "0.0.0.0" # default listen IP (all interfaces)
+
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH) as f:
             for line in f:
-                if line.strip().startswith("PORT="):
+                line = line.strip()
+                if line.startswith("PORT="):
                     try:
-                        port = int(line.strip().split("=", 1)[1])
-                    except Exception:
-                        pass
-    return port
+                        port = int(line.split("=", 1)[1])
+                    except ValueError:
+                        print(f"Warning: Invalid PORT value in {CONFIG_PATH}")
+                elif line.startswith("LISTEN_IP="):
+                    listen_ip = line.split("=", 1)[1]
+    return listen_ip, port
 
 def get_disks():
     """Find all disks on the system."""
@@ -54,9 +60,9 @@ def collect_metrics():
             disk_buffered_read_speed.labels(disk=disk).set(read_speed)
 
 if __name__ == "__main__":
-    port = get_exporter_port()
-    start_http_server(port)  # Expose metrics on configured port
-    print(f"Serving metrics on port {port}") # Log the port
+    listen_ip, port = get_exporter_config()
+    start_http_server(port, addr=listen_ip)  # Expose metrics on configured IP and port
+    print(f"Serving metrics on {listen_ip}:{port}") # Log the IP and port
 
     # Run once immediately on startup
     collect_metrics()
