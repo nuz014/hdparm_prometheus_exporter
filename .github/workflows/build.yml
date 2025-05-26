@@ -2,12 +2,12 @@ name: Build and Publish .rpm
 
 on:
   push:
-    branches:
-      - main
+    tags: # Trigger on new tags (e.g., v1.0.0)
+      - 'v*'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -23,7 +23,7 @@ jobs:
       run: |
         pip3 install prometheus_client
         fpm -s dir -t rpm -n hdparm-prometheus-exporter \
-            --version 1.0.0 --iteration 1 \
+            --version ${{ github.ref_name }} --iteration 1 \
             --description "Prometheus exporter for hdparm disk metrics" \
             --rpm-os linux \
             --rpm-dist el8 \
@@ -38,8 +38,26 @@ jobs:
             hdparm_exporter.conf=/etc/prometheus_hdparm_exporter/hdparm_exporter.conf \
             debian/hdparm_exporter=/opt/hdparm_prometheus_exporter/debian/hdparm_exporter
 
-    - name: Upload .rpm artifact
-      uses: actions/upload-artifact@v4
+    - name: Generate .repo file
+      run: |
+        REPO_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+        cat > hdparm-prometheus-exporter.repo <<EOF
+[hdparm-prometheus-exporter]
+name=hdparm-prometheus-exporter
+baseurl=${REPO_URL}
+enabled=1
+gpgcheck=0
+EOF
+
+    - name: Create Release and Upload .rpm and .repo
+      uses: softprops/action-gh-release@v2
       with:
-        name: hdparm-prometheus-exporter
-        path: "*.rpm"
+        files: |
+          *.rpm
+          *.repo
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body: |
+          Automated release of hdparm-prometheus-exporter version ${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
