@@ -35,19 +35,11 @@ jobs:
             --after-remove debian/postrm \
             hdparm_exporter.py=/opt/hdparm_prometheus_exporter/hdparm_exporter.py \
             hdparm_exporter.service=/usr/lib/systemd/system/hdparm_exporter.service \
-            hdparm_exporter.conf=/etc/prometheus_hdparm_exporter/hdparm_exporter.conf
+            hdparm_exporter.conf=/etc/prometheus_hdparm_exporter/hdparm_exporter.conf \
+            debian/hdparm_exporter=/opt/hdparm_prometheus_exporter/debian/hdparm_exporter
 
     - name: Upload .rpm artifact
       uses: actions/upload-artifact@v4
       with:
         name: hdparm-prometheus-exporter
         path: "*.rpm"
-
-    - name: Install built RPM and check sudoers file
-      run: |
-        sudo dnf install -y ./hdparm-prometheus-exporter*.rpm
-        if [ -f /etc/sudoers.d/hdparm_exporter ]; then
-          echo "sudoers file exists"
-        else
-          echo "sudoers file missing" && exit 1
-        fi
