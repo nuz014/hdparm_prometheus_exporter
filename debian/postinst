@@ -6,10 +6,14 @@ if ! id -u hdparm_exporter >/dev/null 2>&1; then
     useradd --system --no-create-home --shell /usr/sbin/nologin hdparm_exporter
 fi
 
-# Install sudoers file if not present
+# Ensure sudoers file is installed
 if [ ! -f /etc/sudoers.d/hdparm_exporter ]; then
     install -m 0440 -o root -g root /opt/hdparm_prometheus_exporter/debian/hdparm_exporter /etc/sudoers.d/hdparm_exporter
+    chmod 0440 /etc/sudoers.d/hdparm_exporter
+    chown root:root /etc/sudoers.d/hdparm_exporter
 fi
+
+visudo -cf /etc/sudoers.d/hdparm_exporter
 
 # Reload systemd and enable the service
 systemctl daemon-reload

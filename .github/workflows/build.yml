@@ -42,3 +42,12 @@ jobs:
       with:
         name: hdparm-prometheus-exporter
         path: "*.rpm"
+
+    - name: Install built RPM and check sudoers file
+      run: |
+        sudo dnf install -y ./hdparm-prometheus-exporter*.rpm
+        if [ -f /etc/sudoers.d/hdparm_exporter ]; then
+          echo "sudoers file exists"
+        else
+          echo "sudoers file missing" && exit 1
+        fi
