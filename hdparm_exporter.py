@@ -13,8 +13,9 @@ disk_cached_read_speed = Gauge('disk_cached_read_speed', 'Disk cached read speed
 
 def get_exporter_config():
     """Read exporter configuration from file."""
-    port = 9100  # default port
+    port = 9101  # default port
     listen_ip = "0.0.0.0" # default listen IP (all interfaces)
+    interval_minutes = 5 # default interval in minutes
 
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH) as f:
@@ -27,7 +28,14 @@ def get_exporter_config():
                         print(f"Warning: Invalid PORT value in {CONFIG_PATH}")
                 elif line.startswith("LISTEN_IP="):
                     listen_ip = line.split("=", 1)[1]
-    return listen_ip, port
+                elif line.startswith("INTERVAL_MINUTES="): # Changed config key
+                    try:
+                        interval_minutes = int(line.split("=", 1)[1])
+                    except ValueError:
+                        print(f"Warning: Invalid INTERVAL_MINUTES value in {CONFIG_PATH}")
+
+    scrape_interval_seconds = interval_minutes * 60 # Convert minutes to seconds
+    return listen_ip, port, scrape_interval_seconds
 
 def get_disks():
     """Find all disks on the system."""
@@ -61,14 +69,15 @@ def collect_metrics():
             disk_buffered_read_speed.labels(disk=disk, hostname=hostname).set(read_speed)
 
 if __name__ == "__main__":
-    listen_ip, port = get_exporter_config()
+    listen_ip, port, scrape_interval = get_exporter_config()
     start_http_server(port, addr=listen_ip)  # Expose metrics on configured IP and port
     print(f"Serving metrics on {listen_ip}:{port}") # Log the IP and port
+    print(f"Scraping disks every {scrape_interval} seconds ({scrape_interval // 60} minutes)") # Log interval
 
     # Run once immediately on startup
     collect_metrics()
 
     # Then run periodically
     while True:
-        time.sleep(300)  # Wait for 5 minutes
+        time.sleep(scrape_interval)  # Use configured scrape interval (in seconds)
         collect_metrics()

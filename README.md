@@ -22,7 +22,7 @@ Install the RPM or DEB package on your system. The installer will:
 
 ## Configuration
 
-Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port or listen IP:
+Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port, listen IP, or scrape interval:
 
 ```
 # Port for Prometheus exporter to listen on
@@ -30,6 +30,9 @@ PORT=9101
 
 # IP address for Prometheus exporter to listen on (0.0.0.0 for all interfaces)
 LISTEN_IP=0.0.0.0
+
+# Scrape interval in minutes (default is 5 minutes)
+INTERVAL_MINUTES=5
 ```
 
 Restart the service after changing the configuration:
