@@ -6,8 +6,9 @@ from prometheus_client import start_http_server, Gauge
 CONFIG_PATH = "/etc/prometheus_hdparm_exporter/hdparm_exporter.conf"
 
 # Prometheus metrics
-disk_read_speed = Gauge('disk_read_speed', 'Disk read speed in MB/s', ['disk'])
-disk_cache_speed = Gauge('disk_cache_speed', 'Disk cache speed in MB/s', ['disk'])
+# Changed metric names to match hdparm output
+disk_buffered_read_speed = Gauge('disk_buffered_read_speed', 'Disk buffered read speed in MB/s', ['disk'])
+disk_cached_read_speed = Gauge('disk_cached_read_speed', 'Disk cached read speed in MB/s', ['disk'])
 
 def get_exporter_port():
     port = 9100  # default
@@ -48,12 +49,19 @@ def collect_metrics():
     for disk in disks:
         cache_speed, read_speed = measure_disk_speed(disk)
         if cache_speed is not None and read_speed is not None:
-            disk_cache_speed.labels(disk=disk).set(cache_speed)
-            disk_read_speed.labels(disk=disk).set(read_speed)
+            # Use the new metric names
+            disk_cached_read_speed.labels(disk=disk).set(cache_speed)
+            disk_buffered_read_speed.labels(disk=disk).set(read_speed)
 
 if __name__ == "__main__":
     port = get_exporter_port()
     start_http_server(port)  # Expose metrics on configured port
+    print(f"Serving metrics on port {port}") # Log the port
+
+    # Run once immediately on startup
+    collect_metrics()
+
+    # Then run periodically
     while True:
+        time.sleep(300)  # Wait for 5 minutes
         collect_metrics()
-        time.sleep(300)  # Run every 5 minutes
