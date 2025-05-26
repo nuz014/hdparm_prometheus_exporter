@@ -8,7 +8,7 @@ This package provides a Prometheus exporter that periodically benchmarks all dis
 - Exposes metrics via HTTP for Prometheus scraping.
 - Runs as a dedicated system user (`hdparm_exporter`) for security.
 - Installs a systemd service for automatic startup.
-- Allows configuration of the exporter port via `/etc/hdparm_exporter.conf`.
+- Allows configuration of the exporter port via `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf`.
 - Handles proper permissions for running `hdparm` via a sudoers rule.
 
 ## Installation
@@ -18,7 +18,7 @@ Install the RPM or DEB package on your system. The installer will:
 - Install the exporter script to `/opt/hdparm_prometheus_exporter/`.
 - Install and enable the `hdparm_exporter` systemd service.
 - Install a sudoers file to allow the exporter to run `hdparm` without a password.
-- Place a default config file at `/etc/hdparm_exporter.conf`.
+- Place a default config file at `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf`.
 
 ## Configuration
 
