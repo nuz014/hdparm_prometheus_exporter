@@ -22,7 +22,7 @@ Install the RPM or DEB package on your system. The installer will:
 
 ## Configuration
 
-Edit `/etc/hdparm_exporter.conf` to change the port (default is 9101):
+Edit `/etc/prometheus_hdparm_exporter/hdparm_exporter.conf` to change the port (default is 9101):
 
 ```
 PORT=9101
